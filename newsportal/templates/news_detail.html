@@ -1,0 +1,22 @@
+{% extends 'default.html' %}
+{% load censor %}
+
+{% block title %}{{ news.title|censor }}{% endblock %}
+
+{% block content %}
+<h1>{{ news.title|censor }}</h1>
+
+<p><b>Автор:</b> {{ news.author.username }}</p>
+<p><b>Дата:</b> {{ news.created_at|date:"d.m.Y H:i" }}</p>
+<p><b>Категория:</b> {{ news.category.name }}</p>
+
+<hr>
+
+<p style="font-size: 18px; line-height: 1.6;">
+    {{ news.text|censor }}
+</p>
+
+<a href="/news/">← Вернуться ко всем новостям</a>
+<a href="{% url 'news_edit' news.id %}">Редактировать</a>
+<a href="{% url 'news_delete' news.id %}">Удалить</a>
+{% endblock %}

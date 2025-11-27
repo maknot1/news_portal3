@@ -1,0 +1,17 @@
+{% extends 'default.html' %}
+
+{% block content %}
+<h1>Удаление новости</h1>
+<hr>
+
+<form method="post">
+    {% csrf_token %}
+
+    <p>Вы действительно хотите удалить новость:
+        <b>"{{ object.title }}"</b>?</p>
+
+    <button type="submit">Удалить</button>
+    <a href="{{ object.get_absolute_url }}">Отмена</a>
+</form>
+
+{% endblock %}

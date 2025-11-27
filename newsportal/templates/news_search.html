@@ -1,0 +1,21 @@
+{% extends 'default.html' %}
+{% block content %}
+
+<h1>Поиск новостей</h1>
+
+<form method="get">
+    {{ filterset.form.as_p }}
+    <button type="submit">Найти</button>
+</form>
+
+<hr>
+
+{% for news in news_list %}
+    <h3><a href="{{ news.get_absolute_url }}">{{ news.title }}</a></h3>
+    <p>{{ news.text|truncatewords:20 }}</p>
+{% empty %}
+    <p>Ничего не найдено.</p>
+{% endfor %}
+
+
+{% endblock %}
