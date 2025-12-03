@@ -70,8 +70,6 @@ http://127.0.0.1:8000/admin/
 
 ### Пример файла `.env`
 
-Создайте файл `.env`:
-
 ```env
 EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_app_password
