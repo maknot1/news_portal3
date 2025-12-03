@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
@@ -183,8 +184,8 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = os.getenv("EMAIL_USER") # Перенесите свой email
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS") # Перенесите свой ключ.
+EMAIL_HOST_USER = os.getenv("EMAIL_USER") # сюда идёт перенос почты с файла .env
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS") # сюда идёт перенос ключа с файла .env
 
 DEFAULT_FROM_EMAIL = "Your Project <prostom2020@gmail.com>"
 
