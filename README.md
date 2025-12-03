@@ -3,8 +3,8 @@
 ## 1. Клонирование репозитория
 
 ```bash
-git clone <URL_репозитория>
-cd new_project3
+git clone https://github.com/maknot1/news_portal3
+cd news_portal3
 ```
 
 ## 2. Создание виртуального окружения
