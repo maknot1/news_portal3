@@ -1,0 +1,69 @@
+{% extends 'default.html' %}
+{% load socialaccount %}
+{% load custom_tags %}
+{% load static %}
+
+{% block title %}Sign in{% endblock %}
+
+{% block content %}
+<style>
+  .btn-yandex{ background:#FFCC00;color:#000;font-weight:600;border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s;border:none;}
+  .btn-yandex:hover{ background:#f2bf00;transform:translateY(-1px);box-shadow:0 6px 12px rgba(0,0,0,.1);}
+  .btn-google{border:1px solid #ddd;background:#fff;color:#000;font-weight:600;border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:center;gap:10px;}
+  .btn-google:hover{ background:#f7f7f7;}
+  .oauth-icon{ height:22px; }
+</style>
+
+<div class="d-flex justify-content-center align-items-center" style="min-height:75vh;">
+  <div class="card shadow-lg border-0 p-4" style="max-width:450px;width:100%;border-radius:14px;">
+
+    <h3 class="text-center fw-bold mb-2">Welcome back 👋</h3>
+    <p class="text-center text-muted mb-4">Sign in to continue to your account</p>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger py-2">{{ form.non_field_errors|striptags }}</div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+        {% if field.name != "remember" %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">{{ field.label }}</label>
+          {{ field|add_class:"form-control" }}
+          {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+      {% endfor %}
+
+      {% if form.remember %}
+      <div class="form-check mb-3">
+        {{ form.remember|add_class:"form-check-input" }}
+        <label class="form-check-label" for="{{ form.remember.id_for_label }}">Запомнить меня</label>
+      </div>
+      {% endif %}
+
+      <a href="{% url 'account_reset_password' %}" class="small text-decoration-none">Forgot password?</a>
+      <button type="submit" class="btn btn-primary w-100 mt-3">🔐 Sign in</button>
+    </form>
+
+    <div class="text-center my-3 text-muted"><small>or sign in with</small></div>
+
+    <a href="{% provider_login_url 'yandex' %}" class="btn btn-yandex w-100 mb-2">
+      <img class="oauth-icon" src="{% static 'icons/Yandex_icon.svg.png' %}">
+      Continue with Yandex
+    </a>
+
+    <a href="{% provider_login_url 'google' %}" class="btn btn-google w-100">
+      <img class="oauth-icon" src="{% static 'icons/google-logo.png' %}">
+      Continue with Google
+    </a>
+
+    <div class="text-center mt-3">
+      <small>Don’t have an account? <a href="{% url 'account_signup' %}" class="fw-semibold text-decoration-none">Create one</a></small>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+

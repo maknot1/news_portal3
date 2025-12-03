@@ -1,21 +1,229 @@
 {% extends 'default.html' %}
+
+{% block title %}Поиск публикаций{% endblock %}
+
 {% block content %}
 
-<h1>Поиск новостей</h1>
+<div class="search-wrapper">
 
-<form method="get">
-    {{ filterset.form.as_p }}
-    <button type="submit">Найти</button>
-</form>
+    <h1 class="page-title text-center">🔍 Расширенный поиск публикаций</h1>
 
-<hr>
+    <!-- РЕЖИМ (для наглядности) -->
+    <p class="text-center text-muted mb-3">
+        Сейчас ищем:
+        <strong>
+            {% if current_type == 'article' %}статьи{% else %}новости{% endif %}
+        </strong>
+    </p>
 
-{% for news in news_list %}
-    <h3><a href="{{ news.get_absolute_url }}">{{ news.title }}</a></h3>
-    <p>{{ news.text|truncatewords:20 }}</p>
-{% empty %}
-    <p>Ничего не найдено.</p>
-{% endfor %}
+    <!-- ВКЛАДКИ -->
+    <div class="tabs text-center mb-4">
 
+        <a href="?type=news"
+           class="tab-btn {% if current_type == 'news' %}active{% endif %}">
+            📰 Новости
+        </a>
+
+        <a href="?type=article"
+           class="tab-btn {% if current_type == 'article' %}active{% endif %}">
+            📄 Статьи
+        </a>
+
+    </div>
+
+    <!-- ФОРМА ПОИСКА -->
+    <form method="get" class="search-form">
+
+        <!-- всегда сохраняем текущий тип -->
+        <input type="hidden" name="type" value="{{ current_type }}">
+
+        <div class="filters-box">
+            {{ filterset.form.as_p }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-main">🔍 Найти</button>
+            <a href="{% url 'news_list' %}?type={{ current_type }}" class="btn-back">← Все публикации</a>
+        </div>
+
+    </form>
+
+    <hr>
+
+    <!-- РЕЗУЛЬТАТЫ -->
+    <div class="results">
+
+        {% for news in news_list %}
+            <div class="news-card">
+
+                <h3>
+                    <a href="{{ news.get_absolute_url }}" class="title-link">
+                        {{ news.title }}
+                    </a>
+                </h3>
+
+                <p class="preview">
+                    {{ news.text|truncatewords:25 }}
+                </p>
+
+                <div class="card-footer">
+                    <span class="badge bg-light text-muted me-2">
+                        {% if news.type == 'AR' %}Статья{% else %}Новость{% endif %}
+                    </span>
+                    <a href="{{ news.get_absolute_url }}" class="btn-read">
+                        Читать →
+                    </a>
+                </div>
+
+            </div>
+        {% empty %}
+            <p class="no-results">❌ Ничего не найдено</p>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<style>
+
+.search-wrapper {
+    max-width: 950px;
+    margin: auto;
+}
+
+.page-title {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.tab-btn {
+    padding: 8px 18px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 600;
+    color: #2563eb;
+    border: 2px solid #2563eb;
+    transition: 0.2s;
+}
+
+.tab-btn:hover {
+    background: #2563eb;
+    color: white;
+}
+
+.tab-btn.active {
+    background: #2563eb;
+    color: white;
+}
+
+.search-form {
+    background: #f8fafc;
+    padding: 22px;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.05);
+}
+
+.filters-box p {
+    margin-bottom: 12px;
+}
+
+.filters-box select,
+.filters-box input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.btn-main {
+    padding: 10px 18px;
+    background: #2563eb;
+    border: none;
+    color: white;
+    font-size: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-main:hover {
+    background: #1d4ed8;
+}
+
+.btn-back {
+    align-self: center;
+    text-decoration: none;
+    color: #475569;
+}
+
+.btn-back:hover {
+    text-decoration: underline;
+}
+
+.results {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.news-card {
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    transition: 0.25s;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.title-link {
+    text-decoration: none;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+.title-link:hover {
+    color: #2563eb;
+}
+
+.preview {
+    margin-top: 10px;
+    line-height: 1.6;
+    color: #475569;
+}
+
+.card-footer {
+    margin-top: 12px;
+    text-align: right;
+}
+
+.btn-read {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: bold;
+}
+
+.no-results {
+    text-align: center;
+    font-size: 16px;
+    color: #64748b;
+}
+
+</style>
 
 {% endblock %}

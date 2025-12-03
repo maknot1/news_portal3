@@ -2,79 +2,154 @@
 {% load censor %}
 {% load custom_tags %}
 
-{% block title %}Все новости{% endblock %}
+{% block title %}Публикации{% endblock %}
 
 {% block content %}
-<h1>Все новости</h1>
 
-{# --- Поиск --- #}
-<div class="search-box">
-    <form method="get">
-        <input type="text" name="search" placeholder="Поиск..." value="{{ request.GET.search|default:'' }}">
-
-        {# сохраняем фильтры при поиске #}
-        {% for key, val in request.GET.items %}
-            {% if key != 'search' and key != 'page' %}
-                <input type="hidden" name="{{ key }}" value="{{ val }}">
-            {% endif %}
-        {% endfor %}
-
-        <button type="submit">Поиск</button>
-    </form>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Публикации</h1>
 </div>
 
-<hr>
+{% if messages %}
+<div class="mb-4">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+            {{ message|safe }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 
-<a href="{% url 'news_add' %}">➕ Добавить новость</a>
-|
-<a href="{% url 'news_search' %}">🔍 Расширенный поиск</a>
+<!-- ТАБЫ -->
+<div class="d-flex justify-content-center mb-4">
 
-<hr>
+    <a href="?type=news"
+       class="btn mx-2 {% if current_type == 'news' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+        📰 Новости
+    </a>
 
-{# --- СПИСОК НОВОСТЕЙ --- #}
-{% for n in news_list %}
-    <div class="news-item">
-        <h3>{{ n.title|censor }}</h3>
+    <a href="?type=article"
+       class="btn mx-2 {% if current_type == 'article' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+        📄 Статьи
+    </a>
 
-        <p><b>Автор:</b> {{ n.author }}</p>
-        <p><b>Дата:</b> {{ n.created_at|date:"d.m.Y H:i" }}</p>
-        <p><b>Категория:</b> {{ n.category.name }}</p>
+</div>
 
-        <p>{{ n.text|censor|truncatechars:100 }}</p>
+<!-- ПОИСК -->
+<form method="get" class="mb-4">
 
-        <a href="{% url 'news_detail' n.id %}">Читать далее →</a>
-        |
-        <a href="{% url 'news_edit' n.id %}">✏ Редактировать</a>
-        |
-        <a href="{% url 'news_delete' n.id %}">🗑 Удалить</a>
+    <input type="hidden" name="type" value="{{ current_type }}">
+
+    {% for key, val in request.GET.items %}
+        {% if key != 'search' and key != 'page' and key != 'type' %}
+            <input type="hidden" name="{{ key }}" value="{{ val }}">
+        {% endif %}
+    {% endfor %}
+
+    <div class="input-group">
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Поиск по публикациям..."
+            value="{{ request.GET.search|default:'' }}"
+        >
+        <button class="btn btn-primary">Найти</button>
     </div>
-    <hr>
+
+</form>
+
+<!-- BUTTONS -->
+<div class="d-flex justify-content-between mb-4">
+    <div>
+        {% if user.is_authenticated %}
+            <a href="{% url 'news_create' %}?type={{ current_type }}" class="btn btn-success">
+                ➕ Добавить публикацию
+            </a>
+
+            {% if not is_author %}
+                <a href="{% url 'become_author' %}" class="btn btn-warning ms-2">
+                    🚀 Стать автором
+                </a>
+            {% else %}
+                <a href="{% url 'become_author' %}" class="btn btn-warning ms-2">
+                    ✨ Автор
+                </a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <a href="{% url 'news_search' %}?type={{ current_type }}" class="btn btn-outline-secondary">
+        🔍 Расширенный поиск
+    </a>
+</div>
+
+<!-- LIST -->
+<div class="row">
+
+{% for n in news_list %}
+<div class="col-md-6 col-lg-4 mb-4">
+<div class="card h-100 shadow-sm">
+
+    <div class="card-body">
+        <h5>{{ n.title|censor }}</h5>
+        <div class="text-muted small mb-2">
+            {{ n.created_at|date:"d.m.Y H:i" }} · {{ n.category.name }}
+        </div>
+        <p>{{ n.text|censor|truncatechars:120 }}</p>
+    </div>
+
+    <div class="card-footer bg-white text-end">
+        {% if n.type == 'AR' %}
+            <a href="{% url 'article_detail' n.id %}" class="btn btn-sm btn-primary">Читать</a>
+        {% else %}
+            <a href="{% url 'news_detail' n.id %}" class="btn btn-sm btn-primary">Читать</a>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            {% if n.type == 'AR' %}
+                <a href="{% url 'article_update' n.id %}" class="btn btn-sm btn-outline-warning">✏</a>
+                <a href="{% url 'article_delete' n.id %}" class="btn btn-sm btn-outline-danger">🗑</a>
+            {% else %}
+                <a href="{% url 'news_update' n.id %}" class="btn btn-sm btn-outline-warning">✏</a>
+                <a href="{% url 'news_delete' n.id %}" class="btn btn-sm btn-outline-danger">🗑</a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+</div>
+</div>
 {% empty %}
-    <p>Новостей пока нет.</p>
+<p class="text-center text-muted">Публикаций пока нет.</p>
 {% endfor %}
 
-{# --- ПАГИНАЦИЯ --- #}
-{% if is_paginated %}
-<div style="margin-top: 20px;">
-
-    {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}{% for key,val in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}">
-            ← Назад
-        </a>
-    {% endif %}
-
-    <span style="margin: 0 10px;">
-        Страница {{ page_obj.number }} из {{ paginator.num_pages }}
-    </span>
-
-    {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% for key,val in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}">
-            Вперед →
-        </a>
-    {% endif %}
-
 </div>
+
+<!-- PAGINATION -->
+{% if is_paginated %}
+<nav>
+<ul class="pagination justify-content-center">
+
+{% if page_obj.has_previous %}
+<li class="page-item">
+  <a class="page-link" href="?{% url_replace page=page_obj.previous_page_number %}">←</a>
+</li>
+{% endif %}
+
+<li class="page-item disabled">
+  <span class="page-link">{{ page_obj.number }} / {{ paginator.num_pages }}</span>
+</li>
+
+{% if page_obj.has_next %}
+<li class="page-item">
+  <a class="page-link" href="?{% url_replace page=page_obj.next_page_number %}">→</a>
+</li>
+{% endif %}
+
+</ul>
+</nav>
 {% endif %}
 
 {% endblock %}

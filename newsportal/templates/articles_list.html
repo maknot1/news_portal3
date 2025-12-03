@@ -1,0 +1,37 @@
+{% extends 'default.html' %}
+{% load censor %}
+
+{% block title %}Статьи{% endblock %}
+
+{% block content %}
+<h1>Статьи</h1>
+
+<div class="search-box">
+    <form method="get">
+        <input type="text" name="search" placeholder="Поиск по статьям..." value="{{ request.GET.search }}">
+        <button type="submit">Искать</button>
+    </form>
+</div>
+
+<hr>
+
+<div class="articles-grid">
+{% for article in articles_list %}
+    <div class="article-card">
+        <h3>{{ article.title|censor }}</h3>
+        <p class="date">{{ article.created_at|date:"d.m.Y" }}</p>
+
+        <p class="preview">
+            {{ article.text|censor|truncatechars:130 }}
+        </p>
+
+        <div class="card-footer">
+            <a href="/articles/{{ article.id }}/" class="btn">Читать статью →</a>
+        </div>
+    </div>
+{% empty %}
+    <p>Статей пока нет.</p>
+{% endfor %}
+</div>
+
+{% endblock %}

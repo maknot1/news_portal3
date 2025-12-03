@@ -12,63 +12,89 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-b7k1kzes3r(t+(uvq@0fp)x!ybtyo9m23@1=(4@%uf$$n%ekd*'
-
-# SECURITY WARNING: don't run with debug turned on in production!
+# ======================
+# SECURITY
+# ======================
+SECRET_KEY = 'django-insecure-change-this-in-production'
 DEBUG = True
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
-ALLOWED_HOSTS = []
-
-
-# Application definition
-
+# ======================
+# APPLICATIONS
+# ======================
 INSTALLED_APPS = [
+    # Django core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
-    'django.contrib.flatpages',
 
-    'newsportal',
+    # Sites framework (обязательно для allauth)
+    'django.contrib.sites',
+
+    # Allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+
+    # Providers
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.yandex',
+
+    # Local apps
+    'newsportal.apps.NewsportalConfig',
+    'sign',
+    'protect',
+
+    # Libs
     'django_filters',
 ]
 
-SITE_ID = 1  # обязательно для flatpages
+SITE_ID = 1
 
+# ======================
+# MIDDLEWARE
+# ======================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    'django.contrib.messages.middleware.MessageMiddleware',
+
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # allauth
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 
+# ======================
+# URLS
+# ======================
 ROOT_URLCONF = 'newsportal3.urls'
 
+# ======================
+# TEMPLATES
+# ======================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'newsportal/templates'],
+        'DIRS': [BASE_DIR / 'newsportal' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',  # важно для allauth
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -76,12 +102,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'newsportal3.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# ======================
+# DATABASE
+# ======================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -89,50 +112,124 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+# ======================
+# AUTHENTICATION
+# ======================
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
+# ======================
+# ALLAUTH BASE
+# ======================
 
-LANGUAGE_CODE = 'en-us'
+# Вход ТОЛЬКО по email
+ACCOUNT_LOGIN_METHODS = {"email"}
 
-TIME_ZONE = 'UTC'
+# Поля регистрации
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 
-USE_I18N = True
+# Email уникален
+ACCOUNT_UNIQUE_EMAIL = True
 
-USE_TZ = True
+# Обязательное подтверждение e-mail
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
+# Не пускаем без подтверждённой почты
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+# Авто-выход по GET
+ACCOUNT_LOGOUT_ON_GET = True
 
-STATIC_URL = 'static/'
+# ======================
+# SOCIAL ACCOUNT
+# ======================
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_STORE_TOKENS = True
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
+# ======================
+# PROVIDERS SETTINGS
+# ======================
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    },
+    "yandex": {
+        "SCOPE": ["login:email", "login:info"],
+        "EMAIL_REQUIRED": False,
+        "VERIFIED_EMAIL": False,
+    },
+}
+
+# ======================
+# EMAIL
+# ======================
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "prostom2020@gmail.com"
+EMAIL_HOST_PASSWORD = "pppcsxwtuymbmpfq"
+
+DEFAULT_FROM_EMAIL = "Your Project <prostom2020@gmail.com>"
+
+# ======================
+# STATIC FILES
+# ======================
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# ======================
+# INTERNATIONALIZATION
+# ======================
+LANGUAGE_CODE = 'ru'
+TIME_ZONE = 'Europe/Moscow'
+USE_I18N = True
+USE_TZ = True
 
+# ======================
+# DEFAULT PK
+# ======================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ======================
+# SECURITY (DEV)
+# ======================
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_HTTPONLY = True
+
+SESSION_COOKIE_AGE = 1209600  # 14 дней
+SESSION_SAVE_EVERY_REQUEST = False
+# ======================
+# LOGGING
+# ======================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+    },
+    'loggers': {
+        'allauth': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    }
+}
+

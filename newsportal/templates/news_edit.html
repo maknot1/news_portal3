@@ -1,13 +1,112 @@
 {% extends 'default.html' %}
 
+{% block title %}
+    {% if request.GET.type == 'article' %}
+        Добавить статью
+    {% else %}
+        Добавить новость
+    {% endif %}
+{% endblock %}
+
 {% block content %}
-<h1>Добавить новость</h1>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
+<div class="edit-wrapper">
 
-    <button type="submit">Сохранить</button>
-</form>
+    <h1 class="page-title">
+        {% if request.GET.type == 'article' %}
+            📄 Добавить статью
+        {% else %}
+            📰 Добавить новость
+        {% endif %}
+    </h1>
+
+    <form method="post" class="edit-form">
+        {% csrf_token %}
+
+        <div class="form-fields">
+            {{ form.as_p }}
+        </div>
+
+        <div class="actions">
+
+            <button type="submit" class="btn-save">
+                💾 Сохранить
+            </button>
+
+            <a href="/news/?type={{ request.GET.type|default:'news' }}" class="btn-cancel">
+                Отмена
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+<style>
+.edit-wrapper {
+    max-width: 750px;
+    margin: auto;
+}
+
+.page-title {
+    margin-bottom: 15px;
+}
+
+.edit-form {
+    background: #f9fafb;
+    padding: 24px;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.07);
+}
+
+.form-fields p {
+    margin-bottom: 12px;
+}
+
+.form-fields input,
+.form-fields select,
+.form-fields textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+}
+
+.form-fields textarea {
+    min-height: 120px;
+}
+
+.actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-save {
+    background: #22c55e;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.btn-save:hover {
+    background: #16a34a;
+}
+
+.btn-cancel {
+    text-decoration: none;
+    color: #ef4444;
+    align-self: center;
+}
+
+.btn-cancel:hover {
+    text-decoration: underline;
+}
+</style>
 
 {% endblock %}

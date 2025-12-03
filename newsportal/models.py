@@ -15,6 +15,15 @@ class Category(models.Model):
 
 
 class News(models.Model):
+    NEWS = 'NW'
+    ARTICLE = 'AR'
+
+    TYPE_CHOICES = [
+        (NEWS, 'Новость'),
+        (ARTICLE, 'Статья'),
+    ]
+
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=NEWS)
     title = models.CharField(max_length=255)
     text = models.TextField()
     author = models.ForeignKey(

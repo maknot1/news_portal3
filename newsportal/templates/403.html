@@ -1,0 +1,14 @@
+{% extends 'default.html' %}
+
+{% block title %}Доступ запрещён{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h1>⛔ 403</h1>
+    <p>У вас нет прав для выполнения этого действия.</p>
+
+    <a href="{% url 'news_list' %}" class="btn btn-primary mt-3">
+        ← Вернуться к публикациям
+    </a>
+</div>
+{% endblock %}

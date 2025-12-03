@@ -1,0 +1,9 @@
+{% extends 'default.html' %}
+
+{% block title %}Закрытая зона{% endblock %}
+
+{% block content %}
+<h1>Добро пожаловать, {{ user.username }}</h1>
+<p>Это закрытая страница. Только для авторизованных.</p>
+<a href="/news/">← Назад</a>
+{% endblock %}

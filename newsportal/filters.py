@@ -1,6 +1,5 @@
 import django_filters
-from .models import News, Category
-
+from .models import News
 
 class NewsFilter(django_filters.FilterSet):
 
