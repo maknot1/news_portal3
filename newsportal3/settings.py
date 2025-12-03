@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -181,8 +183,8 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = "prostom2020@gmail.com"
-EMAIL_HOST_PASSWORD = "pppcsxwtuymbmpfq"
+EMAIL_HOST_USER = os.getenv("EMAIL_USER") # Перенесите свой email
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS") # Перенесите свой ключ.
 
 DEFAULT_FROM_EMAIL = "Your Project <prostom2020@gmail.com>"
 
