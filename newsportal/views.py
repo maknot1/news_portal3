@@ -6,14 +6,18 @@ from django.views.generic import (ListView,
                                   TemplateView)
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
+from django.http import HttpResponse
 
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import Group
 
-from .models import News
+from .models import News, Category
 from .filters import NewsFilter
 from django.urls import reverse_lazy
 from .forms import NewsForm
@@ -21,6 +25,17 @@ from .forms import NewsForm
 
 def home(request):
     return render(request, 'theme/index.html')
+
+@login_required
+def subscribe_to_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    category.subscribers.add(request.user)
+    return redirect(request.META.get('HTTP_REFERER'))
+@login_required
+def unsubscribe_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    category.subscribers.remove(request.user)
+    return redirect(request.META.get('HTTP_REFERER'))
 
 @login_required
 def become_author(request):
@@ -36,7 +51,19 @@ def become_author(request):
     return redirect('/news/')
 
 
+def activate_account(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except:
+        return HttpResponse("Ссылка недействительна")
 
+    if default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        return HttpResponse("✅ Аккаунт активирован!")
+    else:
+        return HttpResponse("❌ Ссылка просрочена или недействительна")
 
 class NewsList(ListView):
     model = News
@@ -69,6 +96,8 @@ class NewsList(ListView):
             self.request.user.groups.filter(name='authors').exists()
             if self.request.user.is_authenticated else False
         )
+
+        context['categories'] = Category.objects.all()
 
         return context
 

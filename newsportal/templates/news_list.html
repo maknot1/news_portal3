@@ -3,11 +3,47 @@
 {% load custom_tags %}
 
 {% block title %}Публикации{% endblock %}
-
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>Публикации</h1>
+{% if user.is_authenticated %}
+<div class="dropdown mb-3">
+
+    <button class="btn btn-outline-primary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown">
+        ⭐ Подписки на категории
+    </button>
+
+    <ul class="dropdown-menu shadow">
+
+        {% for category in categories %}
+        <li class="px-2 py-1 d-flex justify-content-between align-items-center">
+
+            <span>{{ category.name }}</span>
+
+            {% if user in category.subscribers.all %}
+                <form method="post" action="{% url 'unsubscribe_category' category.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger">Отписаться</button>
+                </form>
+            {% else %}
+                <form method="post" action="{% url 'subscribe_category' category.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-success">Подписаться</button>
+                </form>
+            {% endif %}
+
+        </li>
+        {% empty %}
+        <li class="px-2 py-1 text-muted">Категории отсутствуют</li>
+        {% endfor %}
+
+    </ul>
+</div>
+{% endif %}
+
 </div>
 
 {% if messages %}

@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from newsportal.views import ProtectedView, become_author
 from newsportal.views import home
+from newsportal import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,5 +39,8 @@ urlpatterns = [
 
     # ДЛЯ АВТОРА
     path('become-author/', become_author, name='become_author'),
+
+    # АКТИВАЦИЯ АККАУНТА
+    path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
 
 ]

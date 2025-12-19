@@ -1,4 +1,5 @@
 from django.urls import path
+from .import views
 from .views import (
     NewsList,
     NewsDetail,
@@ -26,4 +27,11 @@ urlpatterns = [
     path('articles/<int:pk>/edit/', NewsUpdate.as_view(), name='article_update'),
     path('articles/<int:pk>/delete/', NewsDelete.as_view(), name='article_delete'),
 
+    # === ПОДПИСКА ===#
+
+    path('subscribe/<int:category_id>/', views.subscribe_to_category, name='subscribe_category'),
+    path('unsubscribe/<int:category_id>/', views.unsubscribe_category, name='unsubscribe_category'),
+
+
+    path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
 ]

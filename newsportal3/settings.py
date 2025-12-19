@@ -55,6 +55,9 @@ INSTALLED_APPS = [
 
     # Libs
     'django_filters',
+
+    #apscheduler
+    'django_apscheduler'
 ]
 
 SITE_ID = 1
@@ -177,6 +180,7 @@ SOCIALACCOUNT_PROVIDERS = {
 # ======================
 # EMAIL
 # ======================
+SITE_URL = 'http://127.0.0.1:8000'
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
@@ -187,7 +191,10 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_USER") # сюда идёт перенос почты с файла .env
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS") # сюда идёт перенос ключа с файла .env
 
-DEFAULT_FROM_EMAIL = "Your Project <prostom2020@gmail.com>"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+print("EMAIL:", EMAIL_HOST_USER)
+print("PASS:", bool(EMAIL_HOST_PASSWORD))
 
 # ======================
 # STATIC FILES
@@ -195,6 +202,15 @@ DEFAULT_FROM_EMAIL = "Your Project <prostom2020@gmail.com>"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# ======================
+# Apscheduler
+# ======================
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+
+APSCHEDULER_RUN_NOW_TIMEOUT = 25
+
 
 # ======================
 # INTERNATIONALIZATION

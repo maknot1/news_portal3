@@ -1,0 +1,10 @@
+<!Doctype html>
+
+{% if user.is_authenticated %}
+<form action="{% url 'subscribe_category' category.id %}" method = "post">
+    {% csrf_token %}
+    <button type = "submit">Подписаться</button>
+</form>
+{% else %}
+<p>Войдите, чтобы подписаться</p>
+{% endif %}
