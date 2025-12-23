@@ -43,4 +43,6 @@ urlpatterns = [
     # АКТИВАЦИЯ АККАУНТА
     path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
 
+    # Redis
+    path("", include("core.urls")),
 ]

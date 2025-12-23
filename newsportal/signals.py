@@ -12,11 +12,15 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 
-from .models import News
+from .models import News, Post
 
 User = get_user_model()
 
 
+@receiver(post_save, sender=Post)
+def post_created(sender, instance, created, **kwargs):
+    if created:
+        notify_subscribers.delay(instance.id)
 
 @receiver(pre_save, sender=News)
 def news_pre_save(sender, instance, *args, **kwargs):

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'newsportal.apps.NewsportalConfig',
     'sign',
     'protect',
+    'core',
 
     # Libs
     'django_filters',
@@ -210,6 +211,16 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 
 APSCHEDULER_RUN_NOW_TIMEOUT = 25
+# ======================
+# REDIS
+# ======================
+
+CELERY_BROKER_URL = os.getenv("REDIS_URL")
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
 
 
 # ======================
@@ -252,3 +263,12 @@ LOGGING = {
     }
 }
 
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "weekly-newsletter": {
+        "task": "news.tasks.weekly_newsletter",
+        "schedule": crontab(hour=8, minute=0, day_of_week=1),
+
+    },
+}
