@@ -7,7 +7,7 @@ from newsportal3 import settings
 
 
 @shared_task
-def notify_subscribers():
+def notify_subscribers(post_id):
     post = Post.objects.get(id=post_id)
     subscribers = post.category.subscribers.all()
 
