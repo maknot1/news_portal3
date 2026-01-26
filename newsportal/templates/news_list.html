@@ -1,6 +1,7 @@
 {% extends 'default.html' %}
 {% load censor %}
 {% load custom_tags %}
+{% load cache %}
 
 {% block title %}Публикации{% endblock %}
 {% block content %}
@@ -59,6 +60,7 @@
 
 
 <!-- ТАБЫ -->
+{% cache 300 news_tabs current_type %}
 <div class="d-flex justify-content-center mb-4">
 
     <a href="?type=news"
@@ -72,8 +74,10 @@
     </a>
 
 </div>
+{% endcache %}
 
 <!-- ПОИСК -->
+{% cache 180 news_search_form current_type %}
 <form method="get" class="mb-4">
 
     <input type="hidden" name="type" value="{{ current_type }}">
@@ -96,6 +100,7 @@
     </div>
 
 </form>
+{% endcache %}
 
 <!-- BUTTONS -->
 <div class="d-flex justify-content-between mb-4">
@@ -123,6 +128,7 @@
 </div>
 
 <!-- LIST -->
+{% cache 5 news_list_block page_obj.number current_type %}
 <div class="row">
 
 {% for n in news_list %}
@@ -162,9 +168,11 @@
 {% endfor %}
 
 </div>
+{% endcache %}
 
 <!-- PAGINATION -->
 {% if is_paginated %}
+{% cache 300 pagination_block page_obj.number %}
 <nav>
 <ul class="pagination justify-content-center">
 
@@ -186,6 +194,7 @@
 
 </ul>
 </nav>
+{% endcache %}
 {% endif %}
 
 {% endblock %}

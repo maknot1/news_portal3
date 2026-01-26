@@ -1,9 +1,25 @@
+# Virtual environment
 venv/
+
+# Python cache
 __pycache__/
 *.pyc
+
+# Environment variables
 .env
+
+# IDEs
 .idea/
 .vscode/
+
+# Database
 db.sqlite3
+
 # Celery Beat
 celerybeat-schedule*
+
+# Logs
+*.log
+
+# Local data
+data.json

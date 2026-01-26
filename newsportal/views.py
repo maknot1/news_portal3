@@ -17,11 +17,37 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import Group
 
-from .models import News, Category
+from .models import News, Category, Post
 from .filters import NewsFilter
 from django.urls import reverse_lazy
 from .forms import NewsForm
 
+from django.views.decorators.cache import cache_page
+
+import logging
+
+logger = logging.getLogger('django')
+
+def test_logging(request):
+    logger.debug('DEBUG message')
+    logger.info('INFO message')
+    logger.warning('WARNING message')
+    logger.error('ERROR message')
+
+    try:
+        1 / 0
+    except ZeroDivisionError:
+        logger.error('ERROR message', exc_info=True)
+
+    return HttpResponse('Logging test executed')
+
+@cache_page(60 * 5)
+def news_list(request):
+    news = Post.objects.all()
+    return render(request, 'news_list.html', {"news": news})
+@cache_page(60)
+def index(request):
+    return render(request, 'main_cache.html')
 
 def home(request):
     return render(request, 'theme/index.html')
@@ -195,6 +221,17 @@ class NewsDetail(DetailView):
     model = News
     template_name = 'news_detail.html'
     context_object_name = 'news'
+
+    def get_object(self, queryset=None):
+        key = f'self.kwargs{self.kwargs["pk"]}'
+
+        news = cache.get(key)
+
+        if news is None:
+            news = super().get_object(queryset)
+            cache.set(key, news)
+
+        return news
 
 class ProtectedView(LoginRequiredMixin, TemplateView):
     template_name = 'prodected_page.html'

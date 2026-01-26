@@ -136,7 +136,7 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 # ======================
 
 # Вход ТОЛЬКО по email
-ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
 
 # Поля регистрации
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
@@ -194,8 +194,6 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS") # сюда идёт перенос
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-print("EMAIL:", EMAIL_HOST_USER)
-print("PASS:", bool(EMAIL_HOST_PASSWORD))
 
 # ======================
 # STATIC FILES
@@ -271,4 +269,170 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(hour=8, minute=0, day_of_week=1),
 
     },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': os.path.join(BASE_DIR, 'cache_files')
+    }
+}
+
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    # ---------------- ФИЛЬТРЫ ----------------
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+
+    # ---------------- ФОРМАТТЕРЫ ----------------
+    'formatters': {
+
+        # DEBUG / INFO (консоль)
+        'console_simple': {
+            'format': '%(asctime)s | %(levelname)s | %(message)s',
+        },
+
+        # WARNING+ (консоль с pathname)
+        'console_warning': {
+            'format': '%(asctime)s | %(levelname)s | %(message)s | %(pathname)s',
+        },
+
+        # ERROR+ (консоль с pathname + stack)
+        'console_error': {
+            'format': '%(asctime)s | %(levelname)s | %(message)s | %(pathname)s',
+        },
+
+        # general.log
+        'general': {
+            'format': '%(asctime)s | %(levelname)s | %(module)s | %(message)s',
+        },
+
+        # errors.log и email
+        'errors': {
+            'format': '%(asctime)s | %(levelname)s | %(message)s | %(pathname)s',
+        },
+
+        # security.log
+        'security': {
+            'format': '%(asctime)s | %(levelname)s | %(module)s | %(message)s',
+        },
+    },
+
+    # ---------------- HANDLERS ----------------
+    'handlers': {
+
+        # --- КОНСОЛЬ ---
+
+        'console_debug': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'console_simple',
+        },
+
+        'console_warning': {
+            'level': 'WARNING',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'console_warning',
+        },
+
+        'console_error': {
+            'level': 'ERROR',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'console_error',
+        },
+
+        # --- GENERAL.LOG ---
+        'general_file': {
+            'level': 'INFO',
+            'filters': ['require_debug_false'],
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'general.log',
+            'formatter': 'general',
+        },
+
+        # --- ERRORS.LOG ---
+        'errors_file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'errors.log',
+            'formatter': 'errors',
+        },
+
+        # --- SECURITY.LOG ---
+        'security_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'security.log',
+            'formatter': 'security',
+        },
+
+        # --- EMAIL ---
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'errors',
+        },
+    },
+
+    # ---------------- LOGGERS ----------------
+    'loggers': {
+
+        # основной логгер django → консоль + general.log
+        'django': {
+            'handlers': [
+                'console_debug',
+                'console_warning',
+                'console_error',
+                'general_file',
+            ],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+
+        # только ERROR / CRITICAL → errors.log + email
+        'django.request': {
+            'handlers': ['errors_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+
+        'django.server': {
+            'handlers': ['errors_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+
+        'django.template': {
+            'handlers': ['errors_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+
+        'django.db.backends': {
+            'handlers': ['errors_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+
+        # безопасность
+        'django.security': {
+            'handlers': ['security_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    }
 }

@@ -3,4 +3,5 @@ from .views import IndexView
 
 urlpatterns = [
     path("", IndexView.as_view(), name="protected"),
+    path('news/', include('newsportal.urls')),
 ]

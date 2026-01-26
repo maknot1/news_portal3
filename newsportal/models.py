@@ -4,15 +4,22 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from datetime import datetime
 
+from django.core.cache import cache
+
 
 class Post(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(f'news-{self.pk}')
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)

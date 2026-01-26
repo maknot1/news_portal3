@@ -8,6 +8,7 @@ from .views import (
     NewsUpdate,
     NewsSearch,
     ArticlesList,
+    test_logging,
 )
 
 urlpatterns = [
@@ -34,4 +35,7 @@ urlpatterns = [
 
 
     path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
+
+    path('test-logging/', test_logging),
+
 ]
